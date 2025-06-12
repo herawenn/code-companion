@@ -267,8 +267,6 @@ This allows the AI to attempt a diagnosis and propose a fix.
   - File system access is managed virtually by the app.
   - Performance with extremely large projects or numerous large files might degrade.
   - Relies on browser APIs (like `ImageCapture`) which might have varying support.
-- **AI Reliability:** The quality of code and explanations depends on the Gemini model's capabilities and the clarity of user prompts.
-- **Tailwind CSS via CDN:** For simplicity in this project, Tailwind CSS is loaded via a CDN script in `index.html`. For more robust production deployments, integrating Tailwind as part of the build process (e.g., via PostCSS) would be preferable.
 
 ## How to Use
 
