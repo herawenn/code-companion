@@ -63,7 +63,7 @@ export const TopHeaderBar: React.FC<TopHeaderBarProps> = ({
       </div>
 
       <div className="flex-grow flex justify-center">
-        <div className="flex items-center space-x-1.5">
+        <div className="flex items-center space-x-1.5" id="top-header-bar-panel-toggles">
             <PanelToggleButton
             label="Conversation"
             Icon={MdChat}
