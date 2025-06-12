@@ -1,8 +1,6 @@
 
 # Code Companion - AI Powered Coding Assistant
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-
 Code Companion is an interactive web application designed to assist developers by integrating the power of Google's Gemini AI. It provides a chat-based interface to generate, modify, and explain code, alongside a comprehensive suite of tools including a file explorer, code editor, and live preview panel.
 
 ![Code Companion Screenshot](https://i.imgur.com/83PBXmn.png)
@@ -272,20 +270,6 @@ This allows the AI to attempt a diagnosis and propose a fix.
 - **AI Reliability:** The quality of code and explanations depends on the Gemini model's capabilities and the clarity of user prompts.
 - **Tailwind CSS via CDN:** For simplicity in this project, Tailwind CSS is loaded via a CDN script in `index.html`. For more robust production deployments, integrating Tailwind as part of the build process (e.g., via PostCSS) would be preferable.
 
-## Potential Future Enhancements
-
-- **Advanced Editor Features:** Integrate a more powerful editor component (e.g., Monaco Editor) to provide richer features like autocompletion, error squiggles, and better intellisense.
-- **Git Integration:** Basic Git operations (commit, push, pull).
-- **Terminal Integration:** A pseudo-terminal for running commands.
-- **Real-time Collaboration (Advanced):** Allow multiple users to work on the same project.
-- **Plugin System:** Allow extending functionality with custom plugins.
-- **Enhanced AI Capabilities:**
-  - More sophisticated debugging tools.
-  - AI-driven refactoring suggestions.
-  - Performance analysis.
-- **Local File System Access (e.g., via File System Access API):** For more persistent storage and direct interaction with local projects (requires user permission and browser support).
-- **Theming:** Allow users to customize the UI theme.
-
 ## How to Use
 
 1. **Setup:** Follow the [Setup and Running Locally](#setup-and-running-locally) instructions, especially the **API Key Setup**.
@@ -315,3 +299,5 @@ This allows the AI to attempt a diagnosis and propose a fix.
 ---
 
 Happy Coding with Code Companion!
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
