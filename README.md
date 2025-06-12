@@ -1,5 +1,7 @@
 
-# Code Companion
+# Code Companion - AI Powered Coding Assistant
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Code Companion is an interactive web application designed to assist developers by integrating the power of Google's Gemini AI. It provides a chat-based interface to generate, modify, and explain code, alongside a comprehensive suite of tools including a file explorer, code editor, and live preview panel.
 
@@ -41,8 +43,10 @@ Code Companion is an interactive web application designed to assist developers b
   - Manually create, rename, and delete files/folders.
   - Upload entire project folders.
 - **Code Editor Panel:**
-  - View file content with syntax highlighting for various languages.
-  - Supports multiple open file tabs.
+  - **View Mode:** Displays file content with syntax highlighting for readability using `react-syntax-highlighter`.
+  - **Edit Mode:** Toggle to a direct text editing mode using an "Edit" icon (pencil). Make changes in the textarea.
+  - **Save Functionality:** Click the "Save" icon (floppy disk) to persist changes made in edit mode.
+  - Supports multiple open file tabs; changes are auto-saved if you switch tabs or close an edited tab.
 - **Live Preview Panel:**
   - Render HTML files live to see changes instantly.
   - View content of other text-based files.
@@ -51,7 +55,7 @@ Code Companion is an interactive web application designed to assist developers b
   - "Fix with AI" button for errors, sending context to the AI for a solution.
 - **Project Upload:** Easily upload an existing project folder (text-based files) to work with.
 - **Interactive Tutorial:** Guides new users through the main features of the application.
-- **Responsive & Customizable Layout:**
+- **Responsive \& Customizable Layout:**
   - Resizable panels for personalized workspace.
   - Toggle visibility of Conversation, Editor, and Preview panels.
   - Layout configuration is saved to `localStorage`.
@@ -64,11 +68,11 @@ Code Companion is an interactive web application designed to assist developers b
 
 Code Companion works by facilitating a conversation between the user and the Gemini AI model.
 
-1. **User Input:** The user types a request in the chat panel (e.g., "Create an HTML file with a basic layout," "Explain this Python function," "Add a CSS style to `style.css`"). They can optionally attach a screenshot and console logs.
+1. **User Input:** The user types a request in the chat panel (e.g., "Create an HTML file with a basic layout," "Explain this Python function," "Add a CSS style to `style.css`"). They can optionally attach a screenshot and console logs. User can also directly edit files in the Editor Panel by toggling edit mode and saving.
 2. **Contextualization:** The application gathers relevant context:
     - The user's prompt.
     - The current project file structure (list of files and folders).
-    - The content of all files in the project.
+    - The content of all files in the project (including any direct user edits).
     - Optional screenshot and console logs.
 3. **AI Processing:** This context is sent to the Gemini API. The AI model analyzes the request and the provided context.
 4. **Structured Response:** Gemini returns a structured JSON response containing:
@@ -76,7 +80,8 @@ Code Companion works by facilitating a conversation between the user and the Gem
     - `fileOperations`: An optional array of actions to be performed on the project's file system (e.g., create file, update file content, delete folder).
 5. **Application Action:**
     - The Code Companion frontend displays the `explanation` in the chat panel.
-    - If `fileOperations` are present, the application executes them, updating the file explorer, editor, and preview panel accordingly.
+    - If `fileOperations` are present, the application executes them, updating the file explorer, editor (content will refresh in view mode), and preview panel accordingly.
+    - User edits saved in the Editor Panel also update the file content directly.
     - Relevant actions are logged in the console panel.
 
 ## Tech Stack
@@ -94,7 +99,7 @@ Code Companion works by facilitating a conversation between the user and the Gem
 - **Icons:**
   - `react-icons`
 - **Syntax Highlighting:**
-  - `react-syntax-highlighter`
+  - `react-syntax-highlighter` (Used in the editor's view mode)
 
 ## Project Structure
 
@@ -158,7 +163,7 @@ code-companion/
 
     - Vite will automatically load this `.env` file during development. For production deployments, you'll need to set this environment variable in your hosting environment.
 
-### Installation & Running
+### Installation \& Running
 
 1. **Clone the repository:**
 
@@ -210,14 +215,14 @@ The core of Code Companion lies in its interaction with the Gemini API. The `gem
 - Instructions for the AI to return a JSON object with `explanation` and `fileOperations`.
 - Guidelines for default project structures if the user is starting a new project.
 - The current file structure of the user's project.
-- The full content of all files in the project.
+- The full content of all files in the project (including any user edits from the editor panel).
 - Optionally, a base64 encoded screenshot and recent console logs if provided by the user.
 
 The AI is configured to return `application/json` which is then parsed by the frontend to update the UI and file system.
 
 ### File Management
 
-- **AI-driven:** Most file operations (create, update, delete files/folders) are initiated by the AI based on user prompts.
+- **AI-driven & User-driven:** File operations (create, update, delete files/folders) can be initiated by the AI based on user prompts or by direct user edits (saved in the editor panel).
 - **Manual Operations:** The File Explorer panel allows users to:
   - Upload an entire project folder (filters for text-based files, skips common ignored directories like `node_modules`).
   - Create new empty files or folders.
@@ -232,7 +237,7 @@ The UI is divided into several key panels:
 - **Top Header Bar:** Contains app title, panel toggle buttons, and developer info.
 - **Conversation Panel:** For chat interactions with the AI.
 - **File Explorer Panel:** Displays and manages project files.
-- **Editor Panel:** Shows content of selected files with syntax highlighting, supports multiple tabs.
+- **Editor Panel:** Displays file content with syntax highlighting (view mode). An "Edit" icon switches to a text area for modifications, which can then be saved using a "Save" icon. Supports multiple tabs.
 - **Preview Panel:** Renders HTML files or displays content of other text files.
 - **Console Panel:** Shows logs and errors.
 
@@ -242,7 +247,7 @@ These panels (Conversation, Editor group, Preview) can be toggled for visibility
 
 For first-time users (or when manually toggled), an interactive tutorial guides them through the main UI elements and functionalities. It highlights specific components and provides a brief explanation of their purpose. The "seen" status of the tutorial is stored in `localStorage`.
 
-### Screenshot & Console Context
+### Screenshot \& Console Context
 
 Users can click a "Capture Screenshot" button in the chat input area. This uses the browser's `getDisplayMedia` and `ImageCapture` APIs to take a screenshot (ideally of the current tab). This screenshot (as a base64 Data URL) and the current content of the Console Panel are sent along with the next user prompt to give the AI more visual and runtime context, which can be very helpful for debugging UI issues or understanding dynamic states.
 
@@ -258,7 +263,7 @@ This allows the AI to attempt a diagnosis and propose a fix.
 
 ## Limitations
 
-- **Editor is View-Only for User Input:** While the AI can modify files displayed in the editor, users cannot directly type and edit code in the editor panel. All modifications are AI-driven based on chat prompts.
+- **Editor Functionality:** While providing syntax highlighting in view mode and a direct editing mode, the editor lacks advanced IDE features like code autocompletion, integrated debugging tools, or rich intellisense beyond basic text editing.
 - **No Version Control Integration:** No built-in Git support. File changes are local to the browser session or managed via upload/download.
 - **Web-Based Limitations:**
   - File system access is managed virtually by the app.
@@ -269,7 +274,7 @@ This allows the AI to attempt a diagnosis and propose a fix.
 
 ## Potential Future Enhancements
 
-- **Direct Code Editing:** Allow users to type and edit code directly in the Editor panel.
+- **Advanced Editor Features:** Integrate a more powerful editor component (e.g., Monaco Editor) to provide richer features like autocompletion, error squiggles, and better intellisense.
 - **Git Integration:** Basic Git operations (commit, push, pull).
 - **Terminal Integration:** A pseudo-terminal for running commands.
 - **Real-time Collaboration (Advanced):** Allow multiple users to work on the same project.
@@ -297,12 +302,15 @@ This allows the AI to attempt a diagnosis and propose a fix.
         - "Explain the purpose of the `Proxy` object in JavaScript."
         - "Delete the `old_styles/` folder."
     - Use the "Capture Screenshot & Console Logs" button (camera icon) to provide more context to the AI if you're facing UI issues or runtime errors.
-6. **Manage Files:**
-    - Use the File Explorer to browse files, open them in the editor, or perform manual operations (add, rename, delete).
-7. **View Code:** Selected files open in the Editor panel with syntax highlighting.
-8. **Preview:** If you're working with HTML, it will render in the Preview panel. Other text files will show their content. Toggle the Preview panel using the eye icon in the top bar.
-9. **Check Console:** Monitor AI operations, application logs, and errors in the Console panel at the bottom of the editor section. Use "Fix with AI" for errors.
-10. **Restore Checkpoints:** If AI operations don't go as planned, use the "Restore checkpoint" button that appears below AI messages that involved file changes.
+6. **Manage Files & Edit Code:**
+    - Use the File Explorer to browse files or perform manual operations (add, rename, delete).
+    - Select a file to open it in the Editor panel. It will display with syntax highlighting (view mode).
+    - To edit, click the "Edit" icon (pencil) in the sub-header of the editor. The view will change to a text area.
+    - Make your changes and click the "Save" icon (floppy disk) to persist them. The view will revert to syntax highlighting.
+    - Changes are also auto-saved if you switch tabs or close an edited tab.
+7. **Preview:** If you're working with HTML, it will render in the Preview panel. Other text files will show their content. Toggle the Preview panel using the eye icon in the top bar.
+8. **Check Console:** Monitor AI operations, application logs, and errors in the Console panel at the bottom of the editor section. Use "Fix with AI" for errors.
+9. **Restore Checkpoints:** If AI operations don't go as planned, use the "Restore checkpoint" button that appears below AI messages that involved file changes.
 
 ---
 
