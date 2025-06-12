@@ -8,7 +8,7 @@ import { ConsolePanel } from './components/ConsolePanel';
 import { PreviewPanel } from './components/PreviewPanel';
 import { TutorialGuide } from './components/TutorialGuide';
 import { Message, FileItem, AIFileOperation, ConsoleMessage, LayoutConfig, ScreenshotContext, TutorialStep } from './types';
-import { initialFiles, initialMessages, initialSelectedFileId } from './constants';
+import { initialFiles, initialMessages, initialSelectedFileId } from './constants'; 
 import { GeminiService } from './services/geminiService';
 
 const MIN_PANEL_WIDTH = 150;
@@ -46,13 +46,13 @@ export const App: React.FC = () => {
       try {
         return JSON.parse(savedConfig);
       } catch (e) {
-
+        
       }
     }
     const defaultConversationWidth = 300;
     const defaultFileExplorerWidth = 220;
-    const defaultPreviewPanelTargetWidth = 450;
-    const defaultShowPreviewPanel = true;
+    const defaultPreviewPanelTargetWidth = 450; 
+    const defaultShowPreviewPanel = true; 
     const defaultIsFileExplorerVisibleInMiddle = true;
 
     return {
@@ -77,13 +77,13 @@ export const App: React.FC = () => {
     {
       id: 'welcome',
       title: 'Welcome!',
-      content: <p>This quick tour will show you around Code Companion. Click "Next" to begin.</p>,
+      content: <p>Welcome to Code Companion! 🎉 Let's take a quick tour to explore how this AI-powered assistant can supercharge your coding workflow. Click 'Next' to discover its features.</p>,
       position: 'center',
     },
     {
       id: 'conversation-panel',
       title: 'AI Chat',
-      content: <p>Chat with the AI here. Ask it to code, explain, or modify files. You can also upload your project or capture screenshots using the buttons below the input.</p>,
+      content: <p>This is your AI Chat panel. Interact with your Gemini-powered assistant to generate code, refactor existing files, get explanations for complex snippets, or even ask it to plan entire project structures. Use the camera icon 📸 to send a screenshot for visual context or the folder icon 📁 to upload an existing project.</p>,
       targetId: 'conversation-panel-main',
       position: 'right',
       highlightTarget: true,
@@ -93,7 +93,7 @@ export const App: React.FC = () => {
     {
       id: 'file-explorer',
       title: 'File Explorer',
-      content: <p>Manage your project files and folders here. Create, rename, delete, or upload.</p>,
+      content: <p>Here's the File Explorer. It displays your project's structure. You can create new files and folders using the (+) icons at the top, or right-click (or click the '...' icon) on items for options like rename and delete. Keep your project organized from here!</p>,
       targetId: 'file-explorer-panel',
       position: 'right',
       highlightTarget: true,
@@ -103,7 +103,7 @@ export const App: React.FC = () => {
     {
       id: 'editor-panel',
       title: 'Code Editor',
-      content: <p>View and edit your files. It supports tabs for multiple open files. Click the pencil icon to edit, and the save icon to save.</p>,
+      content: <p>The Code Editor is where you'll view and modify your files. It features syntax highlighting for readability and supports multiple open tabs. Click the pencil icon ✏️ to switch to edit mode, make your changes, and then click the save icon 💾 to apply them.</p>,
       targetId: 'editor-panel-main',
       position: 'left',
       highlightTarget: true,
@@ -123,7 +123,7 @@ export const App: React.FC = () => {
     {
       id: 'preview-panel',
       title: 'Preview Panel',
-      content: <p>See live previews of your HTML files or view the content of other text-based files.</p>,
+      content: <p>The Preview Panel shows live updates of your HTML files as you or the AI modifies them. For other text-based files like CSS, JavaScript, or Markdown, it displays their raw content. Great for instant feedback on web projects!</p>,
       targetId: 'preview-panel-main',
       position: 'left',
       highlightTarget: true,
@@ -133,7 +133,7 @@ export const App: React.FC = () => {
     {
       id: 'console-panel',
       title: 'Console',
-      content: <p>Check application logs, AI actions, and errors here. You can even ask the AI to fix errors!</p>,
+      content: <p>The Console Panel, located below the editor, logs important application events, details of AI file operations, and any errors encountered. If you see an error, try the 'Fix with AI' ⚡ button to let your assistant attempt a solution!</p>,
       targetId: 'console-panel-main',
       position: 'top',
       highlightTarget: true,
@@ -143,7 +143,7 @@ export const App: React.FC = () => {
     {
       id: 'panel-toggles',
       title: 'Toggle Panels',
-      content: <p>Use these buttons in the top bar to show or hide the main panels (Chat, Editor, Preview).</p>,
+      content: <p>These buttons in the Top Bar control the visibility of the main workspace panels: Chat 💬, Editor/Explorer 💻, and Preview 👁️. Customize your layout by toggling them to focus on what you need.</p>,
       targetId: 'top-header-bar-panel-toggles',
       position: 'bottom',
       highlightTarget: true,
@@ -151,7 +151,7 @@ export const App: React.FC = () => {
     {
       id: 'finish-tutorial',
       title: 'You\'re All Set!',
-      content: <p>Enjoy using Code Companion. You can always re-open this tutorial from the top bar (school icon).</p>,
+      content: <p>You're all set! We hope this tour helps you get started. Experiment with the AI, explore the tools, and happy coding! Remember, you can revisit this tutorial anytime by clicking the school icon 🎓 in the top bar.</p>,
       position: 'center',
     },
   ];
@@ -172,26 +172,26 @@ export const App: React.FC = () => {
     if (step.targetId && step.highlightTarget) {
       const targetElement = document.getElementById(step.targetId);
       if (targetElement) {
-
+        
         document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
         targetElement.classList.add(HIGHLIGHT_CLASS);
-
+        
         if(step.requireVisible && (targetElement.offsetWidth === 0 || targetElement.offsetHeight === 0)) {
-
+           
         }
 
       }
     } else {
         document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
     }
-
+    
     if (step.onAfterShow) {
-
-      const timer = setTimeout(() => step.onAfterShow!(), 50);
+      
+      const timer = setTimeout(() => step.onAfterShow!(), 50); 
       return () => clearTimeout(timer);
     }
   };
-
+  
   useEffect(() => {
     if (isTutorialVisible && tutorialSteps[currentTutorialStepIndex]) {
         const cleanup = executeTutorialStepSideEffects(currentTutorialStepIndex);
@@ -216,12 +216,12 @@ export const App: React.FC = () => {
     localStorage.setItem(TUTORIAL_SEEN_KEY, 'true');
     document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
   };
-
+  
   const toggleTutorial = () => {
     if(isTutorialVisible) {
         handleSkipTutorial();
     } else {
-        setCurrentTutorialStepIndex(0);
+        setCurrentTutorialStepIndex(0); 
         setIsTutorialVisible(true);
     }
   };
@@ -238,7 +238,7 @@ export const App: React.FC = () => {
   const handleClearConsole = useCallback(() => {
     setConsoleLogs([{ id: generateUniqueId('log'), type: 'info', message: 'Console cleared by user.', timestamp: new Date() }]);
   }, []);
-
+  
   const handleFixErrorWithAI = useCallback(async (errorLog: ConsoleMessage) => {
     addConsoleLog('info', `Attempting to fix error with AI: ${errorLog.message}`);
     const currentEditorFile = files.find(f => f.id === selectedFileId);
@@ -326,11 +326,11 @@ Message: ${errorLog.message}
           currentFiles.push({ id: generateUniqueId('folder'), name: parentPath, type: 'folder', content: '' });
           addConsoleLog('info', `${source} implicitly created parent folder: ${parentPath} for ${normalizedPath}`);
         }
-
+        
         const existingFileIndex = currentFiles.findIndex(f => f.name === normalizedPath && f.type === 'file');
         const fileId = existingFileIndex > -1 ? currentFiles[existingFileIndex].id : generateUniqueId('file');
         const newFile: FileItem = { id: fileId, name: normalizedPath, type: 'file', content: op.content || '' };
-
+        
         if (existingFileIndex > -1) {
           currentFiles[existingFileIndex] = newFile;
           addConsoleLog('success', `${source} updated (via create_file) file: ${normalizedPath}`);
@@ -375,7 +375,7 @@ Message: ${errorLog.message}
       } else if (op.action === 'delete_folder') {
         const folderPathPrefix = normalizedPath + '/';
         const filesInFolder = currentFiles.filter(f => f.name === normalizedPath || f.name.startsWith(folderPathPrefix));
-
+        
         if (filesInFolder.length > 0) {
             filesInFolder.forEach(file => {
                 newOpenFileIds = newOpenFileIds.filter(id => id !== file.id);
@@ -395,7 +395,7 @@ Message: ${errorLog.message}
     setFiles(currentFiles);
     setOpenFileIds(newOpenFileIds);
     setSelectedFileId(newSelectedFileId);
-    setPreviewRefreshKey(prev => prev + 1);
+    setPreviewRefreshKey(prev => prev + 1); 
     addConsoleLog('info', `File operations by ${source} completed. Affected: ${operationsAppliedDetails.join(', ')}`);
   };
 
@@ -436,17 +436,17 @@ Message: ${errorLog.message}
       const errorMessage = e.message || "An unexpected error occurred.";
       setError(errorMessage);
       addConsoleLog('error', `Error sending message to AI: ${errorMessage}`);
-       setMessages(prev => [...prev, {
-        id: generateUniqueId('assistant-error'),
-        sender: 'assistant',
-        text: `Sorry, I encountered an error: ${errorMessage}`,
-        timestamp: new Date()
+       setMessages(prev => [...prev, { 
+        id: generateUniqueId('assistant-error'), 
+        sender: 'assistant', 
+        text: `Sorry, I encountered an error: ${errorMessage}`, 
+        timestamp: new Date() 
       }]);
     } finally {
       setIsLoading(false);
     }
   };
-
+  
   const handleSelectFile = useCallback((fileId: string) => {
     const file = files.find(f => f.id === fileId);
     if (file && file.type === 'file') {
@@ -456,7 +456,7 @@ Message: ${errorLog.message}
       }
       addConsoleLog('info', `Selected file: ${file.name}`);
     } else if (file && file.type === 'folder') {
-
+      
     }
   }, [files, openFileIds, addConsoleLog]);
 
@@ -471,7 +471,7 @@ Message: ${errorLog.message}
       });
     }
   }, [selectedFileId, openFileIds, files, addConsoleLog]);
-
+  
   const handleFileContentChange = useCallback((fileId: string, newContent: string) => {
     setFiles(prevFiles => prevFiles.map(f => f.id === fileId ? { ...f, content: newContent } : f));
     const changedFile = files.find(f => f.id === fileId);
@@ -493,7 +493,7 @@ Message: ${errorLog.message}
       alert(`File "${normalizedFullPath}" already exists.`);
       return null;
     }
-
+    
     const parentPath = normalizedFullPath.substring(0, normalizedFullPath.lastIndexOf('/'));
     if (parentPath && !files.some(f => f.name === parentPath && f.type === 'folder')) {
         const newParentFolder: FileItem = { id: generateUniqueId('folder'), name: parentPath, type: 'folder', content: '' };
@@ -527,7 +527,7 @@ Message: ${errorLog.message}
         setFiles(prev => [...prev, newParentFolder]);
         addConsoleLog('info', `User implicitly created parent folder: ${parentPath} for ${normalizedFullPath}`);
     }
-
+    
     const newFolder: FileItem = { id: generateUniqueId('folder'), name: normalizedFullPath, type: 'folder', content: '' };
     setFiles(prev => [...prev, newFolder]);
     addConsoleLog('success', `User created folder: ${normalizedFullPath}`);
@@ -542,7 +542,7 @@ Message: ${errorLog.message}
       alert(`A file or folder named "${normalizedNewPath}" already exists.`);
       return;
     }
-
+    
     setFiles(prevFiles => prevFiles.map(f => {
       if (f.id === fileId) {
         addConsoleLog('success', `User renamed ${f.type}: ${f.name} to ${normalizedNewPath}`);
@@ -576,16 +576,16 @@ Message: ${errorLog.message}
     } else if (fileToDelete.type === 'folder') {
       const pathPrefix = fileToDelete.name + '/';
       const idsToDelete = files.filter(f => f.name === fileToDelete.name || f.name.startsWith(pathPrefix)).map(f => f.id);
-
+      
       filesToKeep = files.filter(f => !idsToDelete.includes(f.id));
       openIdsToKeep = openFileIds.filter(id => !idsToDelete.includes(id));
-
+      
       if (idsToDelete.includes(newSelectedId || '')) {
         newSelectedId = openIdsToKeep.length > 0 ? openIdsToKeep[openIdsToKeep.length - 1] : null;
       }
       addConsoleLog('success', `User deleted folder and its contents: ${fileToDelete.name}`);
     }
-
+    
     setFiles(filesToKeep);
     setOpenFileIds(openIdsToKeep);
     setSelectedFileId(newSelectedId);
@@ -604,13 +604,13 @@ Message: ${errorLog.message}
     const message = messages.find(m => m.id === messageId);
     if (message && message.checkpoint) {
       if (confirm("Are you sure you want to restore this checkpoint? Current file changes after this point will be lost.")) {
-        setFiles(JSON.parse(JSON.stringify(message.checkpoint.files)));
+        setFiles(JSON.parse(JSON.stringify(message.checkpoint.files))); 
         const newOpenFileIds = message.checkpoint.files.filter(f => openFileIds.includes(f.id)).map(f=>f.id);
         setOpenFileIds(newOpenFileIds);
         if(selectedFileId && !newOpenFileIds.includes(selectedFileId)){
             setSelectedFileId(newOpenFileIds.length > 0 ? newOpenFileIds[0] : null);
         }
-        setMessages(prevMessages => prevMessages.map(msg =>
+        setMessages(prevMessages => prevMessages.map(msg => 
             msg.id === messageId ? { ...msg, text: `${msg.text}\n\n**Restored to this checkpoint.**` } : msg
         ));
         addConsoleLog('success', `Restored to checkpoint from message ID: ${messageId}`);
@@ -626,12 +626,12 @@ Message: ${errorLog.message}
       const newFiles: FileItem[] = [];
       const newOpenFileIdsSet = new Set<string>();
       let firstFileId: string | null = null;
-
+      
       const ignoredNames = ['.git', 'node_modules', '.vscode', 'dist', 'build', '__pycache__', '.DS_Store', '.env'];
       const textFileExtensions = [
-        '.txt', '.md', '.html', '.css', '.js', '.jsx', '.ts', '.tsx', '.json',
-        '.py', '.java', '.c', '.cpp', '.h', '.hpp', '.cs', '.rb', '.php', '.go',
-        '.rs', '.swift', '.kt', '.lua', '.pl', '.sh', '.xml', '.yml', '.yaml',
+        '.txt', '.md', '.html', '.css', '.js', '.jsx', '.ts', '.tsx', '.json', 
+        '.py', '.java', '.c', '.cpp', '.h', '.hpp', '.cs', '.rb', '.php', '.go', 
+        '.rs', '.swift', '.kt', '.lua', '.pl', '.sh', '.xml', '.yml', '.yaml', 
         '.svg', '.gitignore', '.env', '.babelrc', '.eslintrc', '.prettierrc'
       ];
 
@@ -649,7 +649,7 @@ Message: ${errorLog.message}
                 const fileId = generateUniqueId('file');
                 newFiles.push({ id: fileId, name: fullPath, type: 'file', content });
                 if (!firstFileId) firstFileId = fileId;
-                if(newOpenFileIdsSet.size < 10) newOpenFileIdsSet.add(fileId);
+                if(newOpenFileIdsSet.size < 10) newOpenFileIdsSet.add(fileId); 
              } catch (e) {
                 addConsoleLog('warn', `Skipped non-text or unreadable file: ${fullPath} (Error: ${(e as Error).message})`);
              }
@@ -672,7 +672,7 @@ Message: ${errorLog.message}
       const newOpenIdsArray = Array.from(newOpenFileIdsSet);
       setOpenFileIds(newOpenIdsArray);
       setSelectedFileId(firstFileId || (newOpenIdsArray.length > 0 ? newOpenIdsArray[0] : null) );
-      setMessages(initialMessages);
+      setMessages(initialMessages); 
       setConsoleLogs([{ id: generateUniqueId('log'), type: 'success', message: `Successfully uploaded ${newFiles.length} files/folders. Project reset.`, timestamp: new Date() }]);
       setPreviewRefreshKey(prev => prev + 1);
 
@@ -685,7 +685,7 @@ Message: ${errorLog.message}
       }
     }
   };
-
+  
   const handleEditAppName = () => {
     const newName = prompt("Enter new assistant name:", appName);
     if (newName && newName.trim() !== "") {
@@ -702,7 +702,7 @@ Message: ${errorLog.message}
   const handleLayoutChange = (type: keyof LayoutConfig, value: number | boolean) => {
     setLayoutConfig(prev => ({...prev, [type]: value}));
   };
-
+  
   const handleFileExplorerResize = (deltaX: number) => {
     setLayoutConfig(prev => ({
       ...prev,
@@ -723,7 +723,7 @@ Message: ${errorLog.message}
       middleSectionGroupWidth: Math.max(MIN_PANEL_WIDTH * (prev.isFileExplorerVisibleInMiddle ? 2 : 1), prev.middleSectionGroupWidth + deltaX),
     }));
   };
-
+  
   const effectiveEditorWidth = layoutConfig.isFileExplorerVisibleInMiddle ? layoutConfig.middleSectionGroupWidth - layoutConfig.fileExplorerWidth - 8 : layoutConfig.middleSectionGroupWidth;
 
   return (
@@ -760,15 +760,15 @@ Message: ${errorLog.message}
             <Splitter onDrag={handleConversationResize} ariaLabel="Resize Conversation Panel" />
           </>
         )}
-
+        
         {layoutConfig.showEditorSection && (
           <>
-            <div
-                style={{ width: `${layoutConfig.middleSectionGroupWidth}px`}}
+            <div 
+                style={{ width: `${layoutConfig.middleSectionGroupWidth}px`}} 
                 className="flex-shrink-0 h-full flex flex-col"
                 id="editor-section-main"
             >
-              <div className="flex-grow flex h-[calc(100%-40px)]">
+              <div className="flex-grow flex h-[calc(100%-40px)]"> 
                 {layoutConfig.isFileExplorerVisibleInMiddle && (
                   <>
                     <div style={{ width: `${layoutConfig.fileExplorerWidth}px` }} className="flex-shrink-0 h-full" id="file-explorer-panel">
@@ -819,7 +819,7 @@ Message: ${errorLog.message}
           onNext={handleNextTutorialStep}
           onSkip={handleSkipTutorial}
           targetRect={
-            tutorialSteps[currentTutorialStepIndex].targetId && tutorialSteps[currentTutorialStepIndex].highlightTarget ?
+            tutorialSteps[currentTutorialStepIndex].targetId && tutorialSteps[currentTutorialStepIndex].highlightTarget ? 
             document.getElementById(tutorialSteps[currentTutorialStepIndex].targetId!)?.getBoundingClientRect() : null
           }
         />
