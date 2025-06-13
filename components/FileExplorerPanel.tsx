@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, KeyboardEvent, useCallback } from 'react';
 import { FileItem, ExpandedFoldersState } from '../types';
 import { FiMoreVertical, FiX, FiUpload, FiCheck, FiSlash, FiChevronRight, FiChevronDown } from 'react-icons/fi';
@@ -229,7 +228,7 @@ export const FileExplorerPanel: React.FC<FileExplorerPanelProps> = ({
                 aria-current={selectedFileId === file.id && isFile ? "page" : undefined}
                 aria-expanded={isFolder ? isExpanded : undefined}
                 title={file.name}
-                className={`w-full text-left py-1.5 rounded-md flex items-center space-x-0 transition-colors duration-150 ease-in-out focus:outline-none
+                className={`w-full text-left py-1.5 rounded-md flex items-center transition-colors duration-150 ease-in-out focus:outline-none
                   ${selectedFileId === file.id && isFile
                     ? 'bg-[#2A2D2E] text-neutral-100 font-medium'
                     : 'hover:bg-[#262626] text-neutral-300'
@@ -238,21 +237,24 @@ export const FileExplorerPanel: React.FC<FileExplorerPanelProps> = ({
                   `}
                   style={{ paddingLeft: `${0.5 + depth * 0.75}rem` }}
               >
-                {isFolder && (
-                    <button
-                        onClick={(e) => toggleFolderExpansion(file.id, e)}
-                        className="mr-1 p-0.5 rounded text-neutral-400 hover:text-neutral-100 focus:outline-none focus:bg-neutral-600"
-                        aria-label={isExpanded ? `Collapse ${baseName}` : `Expand ${baseName}`}
-                    >
-                        {isExpanded ? <FiChevronDown className="w-3.5 h-3.5 folder-chevron" /> : <FiChevronRight className="w-3.5 h-3.5 folder-chevron" />}
-                    </button>
-                )}
-                {!isFolder && <span className="w-[18px] mr-1 flex-shrink-0"></span>}
+                <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center">
+                  {isFolder && (
+                      <button
+                          onClick={(e) => toggleFolderExpansion(file.id, e)}
+                          className="p-0.5 rounded text-neutral-400 hover:text-neutral-100 focus:outline-none focus:bg-neutral-600"
+                          aria-label={isExpanded ? `Collapse ${baseName}` : `Expand ${baseName}`}
+                      >
+                          {isExpanded ? <FiChevronDown className="w-3.5 h-3.5 folder-chevron" /> : <FiChevronRight className="w-3.5 h-3.5 folder-chevron" />}
+                      </button>
+                  )}
+                </div>
 
-                {getFileIcon(file.name, file.type, `w-4 h-4 ${isFolder ? 'mr-1' : 'mr-2'} flex-shrink-0`)}
+                <div className="w-5 h-5 flex-shrink-0 flex items-center justify-center mr-1.5">
+                  {getFileIcon(file.name, file.type, `w-4 h-4`)}
+                </div>
 
                 {editingItemId === file.id ? (
-                  <div className="flex-grow flex items-center editing-controls ml-0">
+                  <div className="flex-grow flex items-center editing-controls">
                     <input
                       ref={inputRef}
                       type="text"
@@ -266,7 +268,7 @@ export const FileExplorerPanel: React.FC<FileExplorerPanelProps> = ({
                     <button onClick={(e) => {e.stopPropagation(); handleCancelRename();}} className="p-0.5 text-red-400 hover:text-red-300 focus:outline-none" title="Cancel rename"><FiSlash /></button>
                   </div>
                 ) : (
-                  <span className="truncate text-sm flex-grow ml-0">{baseName}</span>
+                  <span className="truncate text-sm flex-grow">{baseName}</span>
                 )}
 
                 {editingItemId !== file.id && (
