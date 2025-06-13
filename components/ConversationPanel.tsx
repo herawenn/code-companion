@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Message, ScreenshotContext, ConsoleMessage } from '../types';
 import { LoadingSpinner }
 from '../constants';
 import { MdSend, MdInfoOutline, MdAutoAwesome, MdCameraAlt, MdFolderOpen, MdEmojiEmotions } from 'react-icons/md';
-import { FiRefreshCw, FiFlag, FiCheckCircle } from 'react-icons/fi';
+import { FiRefreshCw, FiFlag, FiCheckCircle, FiTool } from 'react-icons/fi';
 
 const escapeHtml = (unsafe: string): string => {
     return unsafe
@@ -63,6 +62,7 @@ interface ConversationPanelProps {
   onUploadCodebase: () => void;
   uploadButtonId?: string;
   consoleLogs: ConsoleMessage[];
+  onRefineFix: (userInitiatingMessageId: string, previousAiMessageId: string) => void;
 }
 
 export const ConversationPanel: React.FC<ConversationPanelProps> = ({
@@ -74,7 +74,8 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({
   onRestoreCheckpoint,
   onUploadCodebase,
   uploadButtonId,
-  consoleLogs
+  consoleLogs,
+  onRefineFix
 }) => {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -245,11 +246,14 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({
         </div>
       )}
 
-      <div ref={messagesContainerRef} className={`flex-grow p-4 space-y-4 overflow-y-auto scrollbar-thin`}>
-        {messages.map((msg) => {
+      <div ref={messagesContainerRef} className={`flex flex-col justify-end flex-grow p-4 space-y-4 overflow-y-auto scrollbar-thin`}>
+        {messages.map((msg, index) => {
            const affectedFilePaths = msg.fileOperationsApplied && msg.fileOperationsApplied.length > 0
             ? [...new Set(msg.fileOperationsApplied.map(op => op.path))]
             : [];
+
+            const prevUserMessage = index > 0 ? messages[index-1] : null;
+            const canRefineFix = msg.sender === 'assistant' && prevUserMessage?.sender === 'user' && prevUserMessage.isFixAttempt === true;
 
           return (
             <div key={msg.id} className="flex flex-col items-center">
@@ -291,25 +295,43 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({
                     className="text-sm whitespace-pre-wrap break-words conversation-content"
                     dangerouslySetInnerHTML={{ __html: simpleMarkdownToHtml(msg.text) }}
                     />
-                    <p className="text-xs mt-1 opacity-70 text-right">
-                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
+                    <div className="flex justify-between items-center">
+                        <p className="text-xs mt-1 opacity-70">
+                            {/* Placeholder for potential future actions like thumbs up/down */}
+                        </p>
+                        <p className="text-xs mt-1 opacity-70 text-right">
+                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                    </div>
+
                 </div>
                 )}
 
-                {msg.sender === 'assistant' && msg.checkpoint && (
+                {(msg.sender === 'assistant' && (msg.checkpoint || canRefineFix)) && (
                 <div className="mt-2 w-full max-w-[98%] p-2 rounded-md flex items-center justify-between self-center">
                     <div className="flex items-center text-sm text-neutral-300">
-                    <FiFlag className="w-4 h-4 mr-2 text-sky-400" />
-                    <span>Checkpoint</span>
+                      {msg.checkpoint && <FiFlag className="w-4 h-4 mr-2 text-sky-400" />}
+                      {msg.checkpoint && <span>Checkpoint</span>}
                     </div>
                     <div className="flex items-center space-x-2">
-                    <button
-                        onClick={() => onRestoreCheckpoint(msg.id)}
-                        className="px-2 py-1 text-xs bg-[#404040] hover:bg-[#525252] text-neutral-200 rounded-md focus:outline-none"
-                    >
-                        Restore checkpoint
-                    </button>
+                    {msg.checkpoint && (
+                      <button
+                          onClick={() => onRestoreCheckpoint(msg.id)}
+                          className="px-2 py-1 text-xs bg-[#404040] hover:bg-[#525252] text-neutral-200 rounded-md focus:outline-none"
+                      >
+                          Restore checkpoint
+                      </button>
+                    )}
+                    {canRefineFix && prevUserMessage && (
+                        <button
+                            onClick={() => onRefineFix(prevUserMessage.id, msg.id)}
+                            title="Refine this fix with AI"
+                            className="px-2 py-1 text-xs bg-sky-600 hover:bg-sky-500 text-white rounded-md flex items-center focus:outline-none"
+                        >
+                            <FiTool className="w-3 h-3 mr-1" />
+                            Refine Fix
+                        </button>
+                    )}
                     </div>
                 </div>
                 )}
