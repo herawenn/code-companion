@@ -1,4 +1,3 @@
-
 declare global {
   interface ImageCapture {
     readonly track: MediaStreamTrack;
@@ -89,4 +88,18 @@ export interface TutorialStep {
   requireVisible?: boolean;
   onBeforeShow?: () => void;
   onAfterShow?: () => void;
+}
+
+export interface EditorPanelProps {
+  openFiles: FileItem[];
+  selectedFile: FileItem | null;
+  onSelectFile: (fileId: string) => void;
+  onCloseTab: (fileIdToClose: string) => void;
+  onFileContentChange: (fileId: string, newContent: string) => void;
+}
+
+export interface PreviewPanelProps {
+  file: FileItem | null;
+  allFiles: FileItem[];
+  refreshKey: number;
 }
