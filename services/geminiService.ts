@@ -1,19 +1,20 @@
-
-import { GoogleGenAI, GenerateContentResponse, Content, Part } from "@google/genai";
+import { GoogleGenerativeAI, Content, Part } from "@google/generative-ai";
 import { AIResponseMessage, ScreenshotContext } from "../types";
 
-declare var process: any;
+// 1. Use import.meta.env to get the API key in a Vite project
+const apiKey = import.meta.env.GEMINI_API_KEY;
 
 export class GeminiService {
   private static instance: GeminiService;
-  private ai: GoogleGenAI;
+  // 2. Use the correct class from the '@google/generative-ai' package
+  private ai: GoogleGenerativeAI;
 
   private constructor() {
-    const apiKey = process.env.API_KEY;
     if (!apiKey) {
-      throw new Error("Gemini API key is missing. This is an environment configuration issue. Ensure API_KEY is set in your environment.");
+      throw new Error("Gemini API key is missing. Ensure it is set in your .env file and that vite.config.ts is configured correctly.");
     }
-    this.ai = new GoogleGenAI({ apiKey });
+    // 3. The constructor takes the key directly
+    this.ai = new GoogleGenerativeAI(apiKey);
   }
 
   public static getInstance(): GeminiService {
@@ -86,20 +87,31 @@ User's request: ${userPrompt}`;
       const textPart = { text: fullPromptToAI };
 
       if (imageParts.length > 0) {
-         contents.push({ parts: [...imageParts, textPart] });
+         contents.push({
+           parts: [...imageParts, textPart],
+           role: ""
+         });
       } else {
-         contents.push({ parts: [textPart] });
+         contents.push({
+           parts: [textPart],
+           role: ""
+         });
       }
 
-      const response: GenerateContentResponse = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash-preview-04-17',
+      // 4. Use the correct method to get a model
+      const model = this.ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+      const result = await model.generateContent({
         contents: contents,
-        config: {
+        generationConfig: {
           responseMimeType: "application/json",
         }
       });
 
-      let jsonStr = (response.text ?? '').trim();
+      const response = result.response;
+      // 5. Use the .text() helper method to correctly get the response
+      let jsonStr = response.text() ?? '';
+
       const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
       const match = jsonStr.match(fenceRegex);
       if (match && match[2]) {
