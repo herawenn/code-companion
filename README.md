@@ -7,6 +7,7 @@ Code Companion is an interactive web application designed to assist developers b
 
 **[► View the Live Demo ◄](https://mallory.pw)**
 
+
 </div>
 
 ![Code Companion Screenshot](https://i.imgur.com/83PBXmn.png)
