@@ -1,7 +1,11 @@
 
 # Code Companion - AI Powered Coding Assistant
 
-Code Companion is an interactive web application designed to assist developers by integrating the power of Google's Gemini AI. It provides a chat-based interface to generate, modify, and explain code, alongside a comprehensive suite of tools including a file explorer, code editor, and live preview panel.
+[![Code Companion Screenshot](https://i.imgur.com/83PBXmn.png)](https://mallory.pw)
+
+**[► View the Live Demo at mallory.pw ◄](https://mallory.pw)**
+
+Code Companion is an interactive web application designed to assist developers...
 
 ![Code Companion Screenshot](https://i.imgur.com/83PBXmn.png)
 
@@ -294,8 +298,10 @@ This allows the AI to attempt a diagnosis and propose a fix.
 8. **Check Console:** Monitor AI operations, application logs, and errors in the Console panel at the bottom of the editor section. Use "Fix with AI" for errors.
 9. **Restore Checkpoints:** If AI operations don't go as planned, use the "Restore checkpoint" button that appears below AI messages that involved file changes.
 
----
-
 Happy Coding with Code Companion!
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## Contributing
+
+Contributions are welcome and greatly appreciated! This project is open-source and we'd love your help to make it even better.
+
+Happy Coding with Code Companion!
