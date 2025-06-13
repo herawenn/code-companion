@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { ConversationPanel } from './components/ConversationPanel';
 import { FileExplorerPanel } from './components/FileExplorerPanel';
@@ -8,9 +7,12 @@ import { Splitter } from './components/Splitter';
 import { ConsolePanel } from './components/ConsolePanel';
 import { PreviewPanel } from './components/PreviewPanel';
 import { TutorialGuide } from './components/TutorialGuide';
-import { Message, FileItem, AIFileOperation, ConsoleMessage, LayoutConfig, ScreenshotContext, TutorialStep } from './types';
+import { CommandPalette } from './components/CommandPalette';
+import { Message, FileItem, AIFileOperation, ConsoleMessage, LayoutConfig, ScreenshotContext, TutorialStep, Command, FixContext } from './types';
 import { initialFiles, initialMessages, initialSelectedFileId } from './constants';
 import { GeminiService } from './services/geminiService';
+import { AiOutlineFileAdd, AiOutlineFolderAdd, AiOutlineCloudUpload } from 'react-icons/ai';
+import { FiTrash2, FiMessageSquare, FiSidebar, FiEye, FiBookOpen } from 'react-icons/fi';
 
 const MIN_PANEL_WIDTH = 150;
 const LAYOUT_CONFIG_KEY = 'aiCodingAssistantLayoutConfig_v1';
@@ -40,7 +42,7 @@ export const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [consoleLogs, setConsoleLogs] = useState<ConsoleMessage[]>([
-    { id: generateUniqueId('log'), type: 'info', message: 'Application initialized. Welcome!', timestamp: new Date() }
+    { id: generateUniqueId('log'), type: 'info', message: 'Application initialized. Welcome! Press Cmd+K or Ctrl+K for commands.', timestamp: new Date() }
   ]);
   const [previewRefreshKey, setPreviewRefreshKey] = useState(0);
   const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(() => {
@@ -55,7 +57,7 @@ export const App: React.FC = () => {
     const defaultConversationWidth = 300;
     const defaultFileExplorerWidth = 220;
     const defaultPreviewPanelTargetWidth = 450;
-    const defaultShowPreviewPanel = true;
+    const defaultShowPreviewPanel = false;
     const defaultIsFileExplorerVisibleInMiddle = true;
 
     return {
@@ -73,6 +75,7 @@ export const App: React.FC = () => {
   });
   const [isTutorialVisible, setIsTutorialVisible] = useState(false);
   const [currentTutorialStepIndex, setCurrentTutorialStepIndex] = useState(0);
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
 
   const geminiService = useMemo(() => GeminiService.getInstance(), []);
 
@@ -80,14 +83,14 @@ export const App: React.FC = () => {
     {
       id: 'welcome',
       title: 'Welcome!',
-      content: <p>Welcome to Code Companion! 🎉 Let's take a quick tour to explore how this AI-powered assistant can supercharge your coding workflow. Click 'Next' to discover its features.</p>,
+      content: <p>Welcome to Code Companion! 🎉 Let's take a quick tour. You can also press <kbd className="px-1.5 py-0.5 border border-neutral-600 bg-neutral-700 rounded-md">Cmd/Ctrl</kbd>+<kbd className="px-1.5 py-0.5 border border-neutral-600 bg-neutral-700 rounded-md">K</kbd> for commands.</p>,
       position: 'center',
     },
     {
       id: 'conversation-panel',
       title: 'AI Chat',
       content: <p>This is your AI Chat panel. Interact with your Gemini-powered assistant to generate code, refactor existing files, get explanations for complex snippets, or even ask it to plan entire project structures. Use the camera icon 📸 to send a screenshot for visual context or the folder icon 📁 to upload an existing project.</p>,
-      targetId: 'conversation-panel-main', // Assuming ConversationPanel has an id
+      targetId: 'conversation-panel-main',
       position: 'right',
       highlightTarget: true,
       requireVisible: true,
@@ -97,7 +100,7 @@ export const App: React.FC = () => {
       id: 'file-explorer',
       title: 'File Explorer',
       content: <p>Here's the File Explorer. It displays your project's structure. You can create new files and folders using the (+) icons at the top, or right-click (or click the '...' icon) on items for options like rename and delete. Keep your project organized from here!</p>,
-      targetId: 'file-explorer-panel', // Assuming FileExplorerPanel has an id
+      targetId: 'file-explorer-panel',
       position: 'right',
       highlightTarget: true,
       requireVisible: true,
@@ -107,7 +110,7 @@ export const App: React.FC = () => {
       id: 'editor-panel',
       title: 'Code Editor',
       content: <p>The Code Editor is where you'll view and modify your files. It features syntax highlighting for readability and supports multiple open tabs. Click the pencil icon ✏️ to switch to edit mode, make your changes, and then click the save icon 💾 to apply them.</p>,
-      targetId: 'editor-panel-main', // Assuming EditorPanel has an id
+      targetId: 'editor-panel-main',
       position: 'left',
       highlightTarget: true,
       requireVisible: true,
@@ -127,7 +130,7 @@ export const App: React.FC = () => {
       id: 'preview-panel',
       title: 'Preview Panel',
       content: <p>The Preview Panel shows live updates of your HTML files as you or the AI modifies them. For other text-based files like CSS, JavaScript, or Markdown, it displays their raw content. Great for instant feedback on web projects!</p>,
-      targetId: 'preview-panel-main', // Assuming PreviewPanel has an id
+      targetId: 'preview-panel-main',
       position: 'left',
       highlightTarget: true,
       requireVisible: true,
@@ -136,8 +139,8 @@ export const App: React.FC = () => {
     {
       id: 'console-panel',
       title: 'Console',
-      content: <p>The Console Panel, located below the editor, logs important application events, details of AI file operations, and any errors encountered. If you see an error, try the 'Fix with AI' ⚡ button to let your assistant attempt a solution!</p>,
-      targetId: 'console-panel-main', // Assuming ConsolePanel has an id
+      content: <p>The Console Panel logs important application events, AI file operations, and errors. If you see an error, use "Fix with AI" ⚡. If the fix isn't perfect, use "Refine Fix" in the chat.</p>,
+      targetId: 'console-panel-main',
       position: 'top',
       highlightTarget: true,
       requireVisible: true,
@@ -183,7 +186,7 @@ export const App: React.FC = () => {
     }
 
     if (step.onAfterShow) {
-      const timer = setTimeout(() => step.onAfterShow && step.onAfterShow(), 50); // Small delay for layout changes
+      const timer = setTimeout(() => step.onAfterShow && step.onAfterShow(), 50);
       return () => clearTimeout(timer);
     }
   };
@@ -196,7 +199,7 @@ export const App: React.FC = () => {
     } else {
       document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
     }
-  }, [isTutorialVisible, currentTutorialStepIndex, files, selectedFileId, openFileIds, layoutConfig]); // Added dependencies to re-evaluate if target visibility changes
+  }, [isTutorialVisible, currentTutorialStepIndex, files, selectedFileId, openFileIds, layoutConfig]);
 
   const handleNextTutorialStep = () => {
     if (currentTutorialStepIndex < tutorialSteps.length - 1) {
@@ -213,14 +216,14 @@ export const App: React.FC = () => {
     document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
   };
 
-  const toggleTutorial = () => {
+  const toggleTutorial = useCallback(() => {
     if(isTutorialVisible) {
       handleSkipTutorial();
     } else {
-      setCurrentTutorialStepIndex(0); // Reset to first step
+      setCurrentTutorialStepIndex(0);
       setIsTutorialVisible(true);
     }
-  };
+  }, [isTutorialVisible]);
 
   useEffect(() => {
     localStorage.setItem(LAYOUT_CONFIG_KEY, JSON.stringify(layoutConfig));
@@ -232,7 +235,8 @@ export const App: React.FC = () => {
 
   const handleClearConsole = useCallback(() => {
     setConsoleLogs([{ id: generateUniqueId('log'), type: 'info', message: 'Console cleared by user.', timestamp: new Date() }]);
-  }, []);
+    addConsoleLog('info', 'Console cleared.');
+  }, [addConsoleLog]);
 
   const handleFileContentChange = useCallback((fileId: string, newContent: string) => {
     const fileToChange = files.find(f => f.id === fileId);
@@ -258,59 +262,85 @@ Message: ${errorLog.message}
     }
     promptText += `Please analyze this error and the project context. Provide an explanation of the likely cause and suggest file operations to fix it. If the error is related to CSS or UI, consider the visual aspects.`;
 
-    const fileStructure = files.map(f => `${f.type === 'folder' ? 'D' : 'F'} ${f.name}`).join('\n');
-    const allFilesContent = files.filter(f => f.type === 'file').map(f => `\n\n--- File: ${f.name} ---\n${f.content}`).join('');
-
-    setIsLoading(true);
-    setError(null);
-    setMessages(prev => [...prev, {
-      id: generateUniqueId('user-fix'),
+    const userMessageId = generateUniqueId('user-fix');
+    const userMessage: Message = {
+      id: userMessageId,
       sender: 'user',
       text: `Attempting to fix error: ${errorLog.message}`,
       timestamp: new Date(),
       isFixAttempt: true,
-    }]);
+      fixContext: { originalErrorLogId: errorLog.id }
+    };
+    setMessages(prev => [...prev, userMessage]);
 
-    try {
-      const startTime = performance.now();
-      const aiResponse = await geminiService.generateStructuredResponse(promptText, fileStructure, allFilesContent);
-      const endTime = performance.now();
-      const processingTime = (endTime - startTime) / 1000;
+    await sendAiRequest(promptText, userMessageId, undefined, { originalErrorLogId: errorLog.id });
 
-      const assistantMessageId = generateUniqueId('assistant-fix');
-      let newMessages: Message[] = [{
-        id: assistantMessageId,
-        sender: 'assistant',
-        text: aiResponse.explanation,
-        timestamp: new Date(),
-        processingTime: processingTime,
-      }];
+  }, [files, selectedFileId, geminiService, addConsoleLog, messages]);
 
-      if (aiResponse.fileOperations && aiResponse.fileOperations.length > 0) {
-        const checkpointFiles = JSON.parse(JSON.stringify(files)) as FileItem[];
-        newMessages[0].checkpoint = { files: checkpointFiles };
-        newMessages[0].fileOperationsApplied = aiResponse.fileOperations;
-        applyFileOperations(aiResponse.fileOperations, "AI (error fix)");
-      }
-      setMessages(prev => [...prev, ...newMessages]);
+  const handleRefineFix = useCallback(async (userInitiatingMessageId: string, previousAiMessageId: string) => {
+    const userInitiatingMessage = messages.find(m => m.id === userInitiatingMessageId);
+    const previousAiMessage = messages.find(m => m.id === previousAiMessageId);
 
-    } catch (e: any) {
-      const errorMessage = e.message || "An unexpected error occurred.";
-      setError(errorMessage);
-      addConsoleLog('error', `Error during AI fix attempt: ${errorMessage}`);
-      setMessages(prev => [...prev, {
-        id: generateUniqueId('assistant-error'),
-        sender: 'assistant',
-        text: `Sorry, I encountered an error trying to help with that: ${errorMessage}`,
-        timestamp: new Date()
-      }]);
-    } finally {
-      setIsLoading(false);
+    if (!userInitiatingMessage || !previousAiMessage || !userInitiatingMessage.fixContext?.originalErrorLogId) {
+        addConsoleLog('error', 'Could not find context for refining AI fix.');
+        setError('Failed to get context for refining the fix.');
+        return;
     }
-  }, [files, selectedFileId, geminiService, addConsoleLog]);
 
+    const originalErrorLog = consoleLogs.find(log => log.id === userInitiatingMessage.fixContext!.originalErrorLogId);
+    if (!originalErrorLog) {
+        addConsoleLog('error', `Original error log (ID: ${userInitiatingMessage.fixContext.originalErrorLogId}) not found for refinement.`);
+        setError('Original error details not found for refinement.');
+        return;
+    }
 
-  const applyFileOperations = (operations: AIFileOperation[], source: string = "AI") => {
+    const userFeedback = prompt(`The AI's last fix attempt wasn't perfect.
+Original error: "${originalErrorLog.message.substring(0, 100)}${originalErrorLog.message.length > 100 ? '...' : ''}"
+AI's last suggestion: "${previousAiMessage.text.substring(0,100)}${previousAiMessage.text.length > 100 ? '...' : ''}"
+
+Please describe what's still wrong or provide the new error message:`);
+
+    if (!userFeedback || userFeedback.trim() === '') {
+        addConsoleLog('info', 'AI fix refinement cancelled by user.');
+        return;
+    }
+
+    addConsoleLog('info', `Attempting to refine AI fix for error: ${originalErrorLog.message}`);
+
+    let promptText = `We are trying to fix an error: "${originalErrorLog.message}".
+The context of the error:
+Timestamp: ${originalErrorLog.timestamp.toISOString()}
+Type: ${originalErrorLog.type}
+
+My previous attempt to fix it involved the following explanation and actions:
+Explanation: ${previousAiMessage.text}
+File Operations: ${previousAiMessage.fileOperationsApplied ? JSON.stringify(previousAiMessage.fileOperationsApplied) : 'None'}
+
+The user has provided the following feedback on that attempt: "${userFeedback}"
+
+Please analyze this feedback, the original error, my previous attempt, and the current project state. Provide an updated explanation and new file operations to fully resolve the issue.`;
+
+    const newUserMessageId = generateUniqueId('user-refine');
+    const newUserMessage: Message = {
+      id: newUserMessageId,
+      sender: 'user',
+      text: `Refining fix for: "${originalErrorLog.message.substring(0, 50)}..."
+Feedback: ${userFeedback}`,
+      timestamp: new Date(),
+      isFixAttempt: true,
+      fixContext: {
+        originalErrorLogId: originalErrorLog.id,
+        previousUserMessageId: userInitiatingMessageId,
+        previousAiMessageId: previousAiMessageId,
+      }
+    };
+    setMessages(prev => [...prev, newUserMessage]);
+
+    await sendAiRequest(promptText, newUserMessageId, undefined, newUserMessage.fixContext);
+
+  }, [messages, consoleLogs, geminiService, addConsoleLog, files]); // Removed sendAiRequest from here
+
+  const applyFileOperations = useCallback((operations: AIFileOperation[], source: string = "AI") => {
     let currentFiles = [...files];
     let newSelectedFileId = selectedFileId;
     let newOpenFileIds = [...openFileIds];
@@ -378,27 +408,24 @@ Message: ${errorLog.message}
     setSelectedFileId(newSelectedFileId);
     setPreviewRefreshKey(prev => prev + 1);
     addConsoleLog('info', `Applied ${operations.length} file operation(s) from ${source}. Details: ${operationsAppliedDetails.join(', ')}`);
-  };
+  }, [files, selectedFileId, openFileIds, addConsoleLog]);
 
-  const handleSendMessage = useCallback(async (input: string, screenshotContext?: ScreenshotContext) => {
+
+  const sendAiRequest = useCallback(async (
+    promptText: string,
+    _userMessageId: string,
+    screenshotContext?: ScreenshotContext,
+    fixContextForAiMessage?: FixContext
+  ) => {
     setIsLoading(true);
     setError(null);
-    const userMessage: Message = {
-      id: generateUniqueId('user'),
-      sender: 'user',
-      text: input,
-      timestamp: new Date(),
-      screenshotDataUrl: screenshotContext?.screenshotDataUrl,
-      consoleContextForAI: screenshotContext?.consoleContextForAI,
-    };
-    setMessages(prev => [...prev, userMessage]);
 
     const fileStructure = files.map(f => `${f.type === 'folder' ? 'D' : 'F'} ${f.name}`).join('\n');
     const allFilesContent = files.filter(f => f.type === 'file').map(f => `\n\n--- File: ${f.name} ---\n${f.content}`).join('');
 
     try {
       const startTime = performance.now();
-      const aiResponse = await geminiService.generateStructuredResponse(input, fileStructure, allFilesContent, screenshotContext);
+      const aiResponse = await geminiService.generateStructuredResponse(promptText, fileStructure, allFilesContent, screenshotContext);
       const endTime = performance.now();
       const processingTime = (endTime - startTime) / 1000;
 
@@ -409,13 +436,14 @@ Message: ${errorLog.message}
         text: aiResponse.explanation,
         timestamp: new Date(),
         processingTime: processingTime,
+        fixContext: fixContextForAiMessage, // Associate fix context if provided
       }];
 
       if (aiResponse.fileOperations && aiResponse.fileOperations.length > 0) {
-        const checkpointFiles = JSON.parse(JSON.stringify(files)) as FileItem[]; // Deep copy for checkpoint
+        const checkpointFiles = JSON.parse(JSON.stringify(files)) as FileItem[];
         newAssistantMessages[0].checkpoint = { files: checkpointFiles };
         newAssistantMessages[0].fileOperationsApplied = aiResponse.fileOperations;
-        applyFileOperations(aiResponse.fileOperations);
+        applyFileOperations(aiResponse.fileOperations, `AI (prompt: ${promptText.substring(0,50)}...)`);
       }
       setMessages(prev => [...prev, ...newAssistantMessages]);
 
@@ -427,12 +455,40 @@ Message: ${errorLog.message}
         id: generateUniqueId('assistant-error'),
         sender: 'assistant',
         text: `Sorry, I encountered an error: ${errorMessage}`,
-        timestamp: new Date()
+        timestamp: new Date(),
+        fixContext: fixContextForAiMessage, // Also associate fix context on error
       }]);
     } finally {
       setIsLoading(false);
     }
   }, [files, geminiService, addConsoleLog, applyFileOperations]);
+
+  // Add sendAiRequest to dependency arrays of functions that use it
+  useEffect(() => {
+    // This is just to ensure sendAiRequest is correctly captured if it was missing from deps
+  }, [sendAiRequest]);
+
+  // Update dependency arrays for handleFixErrorWithAI and handleRefineFix
+  // Note: These were already updated in the thought process, but explicitly stating for clarity.
+  // The actual change is the reordering of sendAiRequest and applyFileOperations.
+  // And ensuring sendAiRequest is in the dependency arrays where it's used.
+
+  const handleSendMessage = useCallback(async (input: string, screenshotContext?: ScreenshotContext) => {
+    const userMessageId = generateUniqueId('user');
+    const userMessage: Message = {
+      id: userMessageId,
+      sender: 'user',
+      text: input,
+      timestamp: new Date(),
+      screenshotDataUrl: screenshotContext?.screenshotDataUrl,
+      consoleContextForAI: screenshotContext?.consoleContextForAI,
+    };
+    setMessages(prev => [...prev, userMessage]);
+
+    await sendAiRequest(input, userMessageId, screenshotContext);
+
+  }, [sendAiRequest]);
+
 
   const handleRestoreCheckpoint = useCallback((messageId: string) => {
     const message = messages.find(m => m.id === messageId);
@@ -673,23 +729,17 @@ Message: ${errorLog.message}
       document.body.appendChild(fileInput);
       fileInput.click();
       document.body.removeChild(fileInput);
-      // Note: setIsLoading(false) for this path is handled within onchange/onerror
-      // If user cancels, onchange might not fire. Add a small timeout to reset loading if no files.
       setTimeout(() => {
         if (isLoading && (!fileInput.files || fileInput.files.length === 0)) {
-            // Check if onchange has already set new files or if it's still loading without files.
-            // This is tricky because cancellation doesn't fire an error.
-            // A more robust way might be to attach a window focus listener.
-            // For now, if still loading after a short delay and no files, assume cancellation/empty.
-            const currentSelectedFiles = files; // files from component state
-            if(currentSelectedFiles.length === 0 && !error) { // if still loading and no files processed and no error yet
+            const currentSelectedFiles = files;
+            if(currentSelectedFiles.length === 0 && !error) {
                 addConsoleLog('info', 'Fallback folder selection timed out or was cancelled by user.');
                 setIsLoading(false);
             }
         }
-      }, 3000); // 3 seconds timeout
+      }, 3000);
     }
-  }, [addConsoleLog, files, selectedFileId, openFileIds, geminiService, applyFileOperations, handleSelectFile, isLoading, error]);
+  }, [addConsoleLog, files, selectedFileId, openFileIds, geminiService, handleSelectFile, isLoading, error, applyFileOperations]); // Added applyFileOperations to deps for completeness, though not directly called here.
 
 
   const handleCloseTab = useCallback((fileIdToClose: string) => {
@@ -757,7 +807,6 @@ Message: ${errorLog.message}
         addConsoleLog('success', `User renamed ${oldFile.name} to ${normalizedNewPath}`);
         return { ...f, name: normalizedNewPath };
       }
-      // If it was a folder, rename paths of children
       if (oldFile.type === 'folder' && f.name.startsWith(oldFile.name + '/')) {
         const childRelativePath = f.name.substring(oldFile.name.length);
         return { ...f, name: normalizedNewPath + childRelativePath };
@@ -772,8 +821,7 @@ Message: ${errorLog.message}
     if (!fileToDelete) return;
 
     setFiles(prevFiles => prevFiles.filter(f => {
-      if (f.id === fileId) return false; // Delete the item itself
-      // If deleting a folder, delete all its children
+      if (f.id === fileId) return false;
       if (fileToDelete.type === 'folder' && f.name.startsWith(fileToDelete.name + '/')) return false;
       return true;
     }));
@@ -806,7 +854,34 @@ Message: ${errorLog.message}
       return document.getElementById(step.targetId)?.getBoundingClientRect() || null;
     }
     return null;
-  }, [isTutorialVisible, currentTutorialStepIndex, tutorialSteps, layoutConfig]); // layoutConfig can affect target positions
+  }, [isTutorialVisible, currentTutorialStepIndex, tutorialSteps, layoutConfig]);
+
+  // Command Palette Logic
+  const toggleCommandPalette = useCallback(() => {
+    setIsCommandPaletteOpen(prev => !prev);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
+        event.preventDefault();
+        toggleCommandPalette();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [toggleCommandPalette]);
+
+  const commandsList = useMemo<Command[]>(() => [
+    { id: 'new-file', name: 'File: Create New File', category: 'File', action: () => handleAddFile(), icon: <AiOutlineFileAdd />, keywords: ['create', 'add file'] },
+    { id: 'new-folder', name: 'File: Create New Folder', category: 'File', action: () => handleAddFolder(), icon: <AiOutlineFolderAdd />, keywords: ['create', 'add folder'] },
+    { id: 'upload-project', name: 'Project: Upload Project Folder', category: 'Project', action: handleUploadCodebase, icon: <AiOutlineCloudUpload />, keywords: ['import', 'load project'] },
+    { id: 'clear-console', name: 'Console: Clear Console Logs', category: 'Console', action: handleClearConsole, icon: <FiTrash2 />, keywords: ['log', 'clear'] },
+    { id: 'toggle-conversation-panel', name: 'View: Toggle Conversation Panel', category: 'View', action: () => setLayoutConfig(p => ({ ...p, showConversationPanel: !p.showConversationPanel })), icon: <FiMessageSquare />, keywords: ['chat', 'hide', 'show'] },
+    { id: 'toggle-editor-panel', name: 'View: Toggle Editor/Explorer Panel', category: 'View', action: () => setLayoutConfig(p => ({ ...p, showEditorSection: !p.showEditorSection })), icon: <FiSidebar />, keywords: ['code', 'files', 'hide', 'show'] },
+    { id: 'toggle-preview-panel', name: 'View: Toggle Preview Panel', category: 'View', action: () => setLayoutConfig(p => ({ ...p, showPreviewPanel: !p.showPreviewPanel })), icon: <FiEye />, keywords: ['web', 'live', 'hide', 'show'] },
+    { id: 'toggle-tutorial', name: 'Help: Toggle Tutorial', category: 'Help', action: toggleTutorial, icon: <FiBookOpen />, keywords: ['guide', 'learn', 'help'] },
+  ], [handleAddFile, handleAddFolder, handleUploadCodebase, handleClearConsole, toggleTutorial, layoutConfig.showConversationPanel, layoutConfig.showEditorSection, layoutConfig.showPreviewPanel]);
 
 
   return (
@@ -823,11 +898,12 @@ Message: ${errorLog.message}
         showConversationPanel={layoutConfig.showConversationPanel}
         setShowConversationPanel={(show) => setLayoutConfig(p => ({ ...p, showConversationPanel: show }))}
         showEditorSection={layoutConfig.showEditorSection}
-        setShowEditorSection={(show) => setLayoutConfig(p => ({ ...p, showEditorSection: show }))}
+        setShowEditorSection={(show) => setLayoutConfig(p => ({ ...p, showEditorSection: show, ...(show && { isFileExplorerVisibleInMiddle: true }) }))}
         showPreviewPanel={layoutConfig.showPreviewPanel}
         setShowPreviewPanel={(show) => setLayoutConfig(p => ({ ...p, showPreviewPanel: show }))}
         isTutorialVisible={isTutorialVisible}
         onToggleTutorial={toggleTutorial}
+        onToggleCommandPalette={toggleCommandPalette}
       />
       <div className="flex flex-grow overflow-hidden">
         {layoutConfig.showConversationPanel && (
@@ -847,6 +923,7 @@ Message: ${errorLog.message}
                 onUploadCodebase={handleUploadCodebase}
                 uploadButtonId="upload-codebase-button"
                 consoleLogs={consoleLogs}
+                onRefineFix={handleRefineFix}
               />
             </div>
             <Splitter
@@ -934,6 +1011,11 @@ Message: ${errorLog.message}
           targetRect={currentTutorialTargetRect}
         />
       )}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={toggleCommandPalette}
+        commands={commandsList}
+      />
     </div>
   );
 };
