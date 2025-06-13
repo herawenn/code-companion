@@ -1,4 +1,5 @@
 
+
 declare global {
   interface ImageCapture {
     readonly track: MediaStreamTrack;
@@ -19,7 +20,6 @@ declare global {
     preferCurrentTab?: boolean;
   }
 
-  // Basic File System Access API interfaces (if not provided by lib.dom.d.ts)
   interface FileSystemHandle {
     readonly kind: 'file' | 'directory';
     readonly name: string;
@@ -90,6 +90,12 @@ export interface ScreenshotContext {
   consoleContextForAI: string;
 }
 
+export interface FixContext {
+  originalErrorLogId?: string;
+  previousUserMessageId?: string; // ID of the user message that initiated this fix or refinement
+  previousAiMessageId?: string; // ID of the AI message that was the last attempt
+}
+
 export interface Message {
   id: string;
   text: string;
@@ -99,7 +105,8 @@ export interface Message {
   fileOperationsApplied?: AIFileOperation[];
   screenshotDataUrl?: string;
   consoleContextForAI?: string;
-  isFixAttempt?: boolean;
+  isFixAttempt?: boolean; // True if this user message is part of a fix flow
+  fixContext?: FixContext; // Context for iterative debugging
   processingTime?: number;
 }
 
@@ -156,4 +163,14 @@ export interface PreviewPanelProps {
   file: FileItem | null;
   allFiles: FileItem[];
   refreshKey: number;
+}
+
+export interface Command {
+  id: string;
+  name: string;
+  category?: string;
+  action: () => void;
+  keywords?: string[];
+  shortcut?: string;
+  icon?: React.ReactElement<React.SVGAttributes<SVGSVGElement>>;
 }
