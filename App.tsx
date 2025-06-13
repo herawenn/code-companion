@@ -8,14 +8,13 @@ import { ConsolePanel } from './components/ConsolePanel';
 import { PreviewPanel } from './components/PreviewPanel';
 import { TutorialGuide } from './components/TutorialGuide';
 import { Message, FileItem, AIFileOperation, ConsoleMessage, LayoutConfig, ScreenshotContext, TutorialStep } from './types';
-import { initialFiles, initialMessages, initialSelectedFileId } from './constants'; 
+import { initialFiles, initialMessages, initialSelectedFileId } from './constants';
 import { GeminiService } from './services/geminiService';
 
 const MIN_PANEL_WIDTH = 150;
 const LAYOUT_CONFIG_KEY = 'aiCodingAssistantLayoutConfig_v1';
 const TUTORIAL_SEEN_KEY = 'codeCompanionTutorialSeen_v1';
 const HIGHLIGHT_CLASS = 'tutorial-highlight';
-
 
 const normalizePath = (path: string): string => {
   return path.replace(/^\/+|\/+$/g, '').replace(/\\/g, '/');
@@ -46,13 +45,13 @@ export const App: React.FC = () => {
       try {
         return JSON.parse(savedConfig);
       } catch (e) {
-        
+        // Handle error or return default config
       }
     }
     const defaultConversationWidth = 300;
     const defaultFileExplorerWidth = 220;
-    const defaultPreviewPanelTargetWidth = 450; 
-    const defaultShowPreviewPanel = true; 
+    const defaultPreviewPanelTargetWidth = 450;
+    const defaultShowPreviewPanel = true;
     const defaultIsFileExplorerVisibleInMiddle = true;
 
     return {
@@ -172,35 +171,31 @@ export const App: React.FC = () => {
     if (step.targetId && step.highlightTarget) {
       const targetElement = document.getElementById(step.targetId);
       if (targetElement) {
-        
         document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
         targetElement.classList.add(HIGHLIGHT_CLASS);
-        
-        if(step.requireVisible && (targetElement.offsetWidth === 0 || targetElement.offsetHeight === 0)) {
-           
-        }
 
+        if(step.requireVisible && (targetElement.offsetWidth === 0 || targetElement.offsetHeight === 0)) {
+          // Handle visibility requirement
+        }
       }
     } else {
-        document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
+      document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
     }
-    
+
     if (step.onAfterShow) {
-      
-      const timer = setTimeout(() => step.onAfterShow!(), 50); 
+      const timer = setTimeout(() => step.onAfterShow && step.onAfterShow(), 50);
       return () => clearTimeout(timer);
     }
   };
-  
+
   useEffect(() => {
     if (isTutorialVisible && tutorialSteps[currentTutorialStepIndex]) {
-        const cleanup = executeTutorialStepSideEffects(currentTutorialStepIndex);
-        return cleanup;
+      const cleanup = executeTutorialStepSideEffects(currentTutorialStepIndex);
+      return cleanup;
     } else {
-        document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
+      document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
     }
   }, [isTutorialVisible, currentTutorialStepIndex]);
-
 
   const handleNextTutorialStep = () => {
     if (currentTutorialStepIndex < tutorialSteps.length - 1) {
@@ -216,16 +211,15 @@ export const App: React.FC = () => {
     localStorage.setItem(TUTORIAL_SEEN_KEY, 'true');
     document.querySelectorAll(`.${HIGHLIGHT_CLASS}`).forEach(el => el.classList.remove(HIGHLIGHT_CLASS));
   };
-  
+
   const toggleTutorial = () => {
     if(isTutorialVisible) {
-        handleSkipTutorial();
+      handleSkipTutorial();
     } else {
-        setCurrentTutorialStepIndex(0); 
-        setIsTutorialVisible(true);
+      setCurrentTutorialStepIndex(0);
+      setIsTutorialVisible(true);
     }
   };
-
 
   useEffect(() => {
     localStorage.setItem(LAYOUT_CONFIG_KEY, JSON.stringify(layoutConfig));
@@ -239,6 +233,16 @@ export const App: React.FC = () => {
     setConsoleLogs([{ id: generateUniqueId('log'), type: 'info', message: 'Console cleared by user.', timestamp: new Date() }]);
   }, []);
   
+  const handleFileContentChange = useCallback((fileId: string, newContent: string) => {
+    const fileToChange = files.find(f => f.id === fileId);
+    if (fileToChange) {
+      addConsoleLog('success', `User edited: ${fileToChange.name}`);
+    }
+    setFiles(prevFiles => prevFiles.map(f => f.id === fileId ? { ...f, content: newContent } : f));
+    setPreviewRefreshKey(prev => prev + 1);
+  }, [files, addConsoleLog]);
+
+
   const handleFixErrorWithAI = useCallback(async (errorLog: ConsoleMessage) => {
     addConsoleLog('info', `Attempting to fix error with AI: ${errorLog.message}`);
     const currentEditorFile = files.find(f => f.id === selectedFileId);
@@ -303,7 +307,6 @@ Message: ${errorLog.message}
       setIsLoading(false);
     }
   }, [files, selectedFileId, geminiService, addConsoleLog]);
-
 
   const applyFileOperations = (operations: AIFileOperation[], source: string = "AI") => {
     let currentFiles = [...files];
@@ -472,16 +475,6 @@ Message: ${errorLog.message}
     }
   }, [selectedFileId, openFileIds, files, addConsoleLog]);
   
-  const handleFileContentChange = useCallback((fileId: string, newContent: string) => {
-    setFiles(prevFiles => prevFiles.map(f => f.id === fileId ? { ...f, content: newContent } : f));
-    const changedFile = files.find(f => f.id === fileId);
-    if (changedFile) {
-        addConsoleLog('success', `User edited: ${changedFile.name}`);
-    }
-    setPreviewRefreshKey(prev => prev + 1);
-  }, [files, addConsoleLog]);
-
-
   const handleAddFile = useCallback((parentId?: string, fileName?: string, fileContent: string = '', shouldLog: boolean = true) => {
     const baseName = fileName || prompt("Enter new file name (e.g., script.js or folder/file.txt):");
     if (!baseName) return null;
@@ -807,7 +800,7 @@ Message: ${errorLog.message}
 
         {layoutConfig.showPreviewPanel && (
           <div className="flex-grow h-full" id="preview-panel-main">
-            <PreviewPanel file={selectedFileObject} allFiles={files} refreshKey={previewRefreshKey}/>
+            <PreviewPanel file={selectedFileObject} refreshKey={previewRefreshKey}/>
           </div>
         )}
       </div>
