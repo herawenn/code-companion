@@ -4,7 +4,7 @@ Code Companion is an interactive web application designed to assist developers b
 
 <div align="center">
 
-**[► View the Live Demo ◄](https://mallory.pw)**
+**[► View a Live Demo ◄](https://mallory.pw)**
 
 </div>
 
