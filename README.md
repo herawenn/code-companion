@@ -1,7 +1,7 @@
 
 # Code Companion - AI Powered Coding Assistant
 
-Code Companion is an interactive web application designed to assist developers by integrating the power of Google's Gemini AI. It provides a chat-based interface to generate, modify, and explain code, alongside a comprehensive suite of tools including a file explorer, code editor, and live preview panel.
+Code Companion is an interactive web application designed to assist developers by integrating the power of AI. It provides a chat-based interface to generate, modify, and explain code, alongside other comprehensive including a file explorer, code editor, and live preview panel.
 
 <div align="center">
 
