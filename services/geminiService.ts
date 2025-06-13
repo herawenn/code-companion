@@ -1,19 +1,16 @@
 import { GoogleGenerativeAI, Content, Part } from "@google/generative-ai";
 import { AIResponseMessage, ScreenshotContext } from "../types";
 
-// 1. Use import.meta.env to get the API key in a Vite project
 const apiKey = import.meta.env.GEMINI_API_KEY;
 
 export class GeminiService {
   private static instance: GeminiService;
-  // 2. Use the correct class from the '@google/generative-ai' package
   private ai: GoogleGenerativeAI;
 
   private constructor() {
     if (!apiKey) {
       throw new Error("Gemini API key is missing. Ensure it is set in your .env file and that vite.config.ts is configured correctly.");
     }
-    // 3. The constructor takes the key directly
     this.ai = new GoogleGenerativeAI(apiKey);
   }
 
@@ -98,7 +95,6 @@ User's request: ${userPrompt}`;
          });
       }
 
-      // 4. Use the correct method to get a model
       const model = this.ai.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
       const result = await model.generateContent({
@@ -109,7 +105,6 @@ User's request: ${userPrompt}`;
       });
 
       const response = result.response;
-      // 5. Use the .text() helper method to correctly get the response
       let jsonStr = response.text() ?? '';
 
       const fenceRegex = /^```(\w*)?\s*\n?(.*?)\n?\s*```$/s;
