@@ -1,8 +1,9 @@
 
 # Code Companion - AI Powered Coding Assistant
-Code Companion is an interactive web application designed to assist developers...
+Code Companion is an interactive web application designed to assist developers.
 
-     **[► View the Live Demo at mallory.pw ◄](https://mallory.pw)**
+
+**[► View the Live Demo at mallory.pw ◄](https://mallory.pw)**
 
 ![Code Companion Screenshot](https://i.imgur.com/83PBXmn.png)
 
