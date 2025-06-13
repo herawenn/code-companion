@@ -1,5 +1,5 @@
 import React from 'react';
-import { MdChat, MdCode, MdPreview, MdSchool } from 'react-icons/md';
+import { MdChat, MdCode, MdPreview, MdSchool, MdKeyboard } from 'react-icons/md';
 import { FiEdit2 } from 'react-icons/fi';
 import DeveloperInfo from './DeveloperInfo';
 
@@ -15,21 +15,23 @@ interface TopHeaderBarProps {
   previewToggleButtonId?: string;
   isTutorialVisible: boolean;
   onToggleTutorial: () => void;
+  onToggleCommandPalette: () => void;
 }
 
 const PanelToggleButton: React.FC<{
   label: string;
   Icon: React.ElementType;
-  isPanelVisible: boolean;
+  isPanelVisible?: boolean;
   togglePanelVisibility: () => void;
   buttonId?: string;
-}> = ({ label, Icon, isPanelVisible, togglePanelVisibility, buttonId }) => (
+  title?: string;
+}> = ({ label, Icon, isPanelVisible, togglePanelVisibility, buttonId, title }) => (
   <button
     id={buttonId}
     onClick={togglePanelVisibility}
-    aria-label={`Toggle ${label} Panel`}
+    aria-label={title || `Toggle ${label} Panel`}
     aria-pressed={isPanelVisible}
-    title={`Toggle ${label} Panel`}
+    title={title || `Toggle ${label} Panel`}
     className={`p-1.5 rounded-lg transition-colors duration-150 ease-in-out focus:outline-none
       ${isPanelVisible
         ? 'bg-[#3a3a3a] text-neutral-100'
@@ -47,6 +49,7 @@ export const TopHeaderBar: React.FC<TopHeaderBarProps> = ({
   showPreviewPanel, setShowPreviewPanel,
   previewToggleButtonId,
   isTutorialVisible, onToggleTutorial,
+  onToggleCommandPalette,
 }) => {
   return (
     <header className="p-2 flex items-center justify-between bg-[#262626] border-b border-[#1F1F1F] text-neutral-100 h-[41px]">
@@ -87,6 +90,13 @@ export const TopHeaderBar: React.FC<TopHeaderBarProps> = ({
       </div>
 
       <div className="flex items-center space-x-1.5">
+        <PanelToggleButton
+            label="Command Palette"
+            Icon={MdKeyboard}
+            togglePanelVisibility={onToggleCommandPalette}
+            title="Open Command Palette (Cmd/Ctrl+K)"
+            buttonId="command-palette-toggle-button"
+        />
         <PanelToggleButton
             label="Tutorial"
             Icon={MdSchool}
