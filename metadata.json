@@ -1,6 +1,0 @@
-{
-  "name": "Code Companion",
-  "description": "An interactive coding assistant application featuring a chat interface with Gemini, a file explorer, an editor panel, and a preview panel.",
-  "requestFramePermissions": [],
-  "prompt": ""
-}
