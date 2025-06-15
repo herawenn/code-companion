@@ -10,8 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@google/genai": "^1.5.0",
     "@google/generative-ai": "^0.24.1",
+    "firebase": "^11.9.1",
     "highlight.js": "^11.11.1",
+    "monaco-editor": "^0.52.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^5.2.1",
@@ -30,18 +33,5 @@
     "eslint-plugin-react-refresh": "^0.4.6",
     "typescript": "^5.8.3",
     "vite": "^6.3.5"
-  },
-  "description": "Code Companion is an interactive web application designed to assist developers by integrating the power of Google's Gemini AI. It provides a chat-based interface to generate, modify, and explain code, alongside a comprehensive suite of tools including a file explorer, code editor, and live preview panel.",
-  "main": "index.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/herawenn/code-companion.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/herawenn/code-companion/issues"
-  },
-  "homepage": "https://github.com/herawenn/code-companion#readme"
+  }
 }
