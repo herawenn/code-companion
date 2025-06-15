@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FileItem, Message } from './types';
 import { FiFolder } from 'react-icons/fi';
@@ -78,7 +77,7 @@ export const initialMessages: Message[] = [
   {
     id: generateUniqueId('assistant'),
     sender: 'assistant',
-    text: `\n         Welcome to Code Companion\n\n\t\t\t\t\t\t       🤝\n\n      What would you like to build today?
+    text: `\n         Welcome to Code Companion\n\n\t\t\t\t\t\t       🤝\n\n\t        What can we build today?
     `,
     timestamp: new Date(),
   }
