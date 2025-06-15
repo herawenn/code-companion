@@ -180,9 +180,7 @@ code-companion/
     npm install
     ```
 
-3. **Run the Python backend** *(optional, for Python execution)*:
-
-   !* in a separate terminal
+3. **Run the Python backend** *(optional, in a separate terminal)*:
 
     ```bash
     python backend_app.py
