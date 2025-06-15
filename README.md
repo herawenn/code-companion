@@ -264,7 +264,7 @@ Users can click a "Capture Screenshot" button (camera icon 📸) in the chat inp
 
 #### **Command Palette**
 
-- **Access:** Open the Command Palette using the keyboard shortcut `Cmd+K` (Mac) or `Ctrl+K` (Windows/Linux), or by clicking the keyboard icon (⌨️) in the Top Header Bar.
+- **Access:** Open the Command Palette using the keyboard shortcut `Cmd+K` or `Ctrl+K` (Windows/Linux), or by clicking the keyboard icon (⌨️) in the Top Header Bar.
 - **Functionality:** It provides a quick way to search for and execute various application commands, such as:
   - Creating new files or folders.
   - Toggling the visibility of UI panels (Chat, Editor, Preview).
